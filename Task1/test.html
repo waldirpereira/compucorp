@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html ng-app="testng.test">
+<head>
+  <meta charset="utf-8">
+  <title>Jasmine Spec Runner v2.5.2</title>
+
+  <link rel="shortcut icon" type="image/png" href="./test/lib/jasmine-2.5.2/jasmine_favicon.png">
+  <link rel="stylesheet" href="./test/lib/jasmine-2.5.2/jasmine.css">
+    <link rel="stylesheet" type="text/css" href="./content/css/vendor/bootstrap/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./content/css/app/app.css">
+
+    <script src="./test/lib/jasmine-2.5.2/jasmine.js"></script>
+    <script src="./test/lib/jasmine-2.5.2/jasmine-html.js"></script>
+    <script src="./test/lib/jasmine-2.5.2/boot.js"></script>
+
+    <script src="./scripts/vendor/jquery/jquery-3.1.0.js"></script>
+    <script src="./scripts/vendor/bootstrap/bootstrap.js"></script>
+
+    <script src="./scripts/vendor/angular/angular.js"></script>
+    <script src="./scripts/vendor/angular/angular-mocks.js"></script>
+    <script src="./scripts/vendor/angular/angular-route.js"></script>
+    <script src="./scripts/vendor/angular/angular-animate.js"></script>
+    <script src="./scripts/vendor/angular-ui/ui-bootstrap-2.1.4.js"></script>
+    <script src="./scripts/vendor/angular-ui/ui-bootstrap-tpls-2.1.4.js"></script>
+    <script src="./scripts/vendor/angular-growl/angular-growl.js"></script>
+
+    <script src="./scripts/app/testng.module.js"></script>
+    <script src="./scripts/app/weather/testng.weather.module.js"></script>
+    <script src="./scripts/app/weather/testng.weather.service.js"></script>
+    <script src="./scripts/app/weather/testng.weather.controller.js"></script>
+    <script src="./scripts/app/weather/testng.weather.directives.js"></script>
+
+    <script src="./scripts/app/testng.template.service.js"></script>
+    <script src="./scripts/app/testng.menu.js"></script>
+    <script src="./test/scripts/testng-test-result.js"></script>
+
+  <!-- include spec files here... -->
+  <script src="./test/spec/WeatherControllerSpec.js"></script>
+
+</head>
+
+<body>
+    <div class="main-container">
+        <testng-menu></testng-menu>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">Test results</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12" id="aaa">
+                        <testng-test-results/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            angular.module("testng")
+                .constant("CONFIG", {
+                    menuTemplate: "content/templates/menu.html"
+                });
+        })();
+
+    </script>
+</body>
+</html>

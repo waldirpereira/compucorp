@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html ng-app="testng.weather">
+<head>
+    <title>Weather</title>
+    <meta charset="utf-8" />
+    <!-- vendor scripts -->
+    <script src="./scripts/vendor/jquery/jquery-3.1.0.js"></script>
+    <script src="./scripts/vendor/bootstrap/bootstrap.js"></script>
+    <script src="./scripts/vendor/angular/angular.js"></script>
+    <script src="./scripts/vendor/angular/angular-route.js"></script>
+    <script src="./scripts/vendor/angular/angular-animate.js"></script>
+    <script src="./scripts/vendor/angular-ui/ui-bootstrap-2.1.4.js"></script>
+    <script src="./scripts/vendor/angular-ui/ui-bootstrap-tpls-2.1.4.js"></script>
+    <script src="./scripts/vendor/angular-growl/angular-growl.js"></script>
+
+    <!-- app module -->
+    <script src="./scripts/app/testng.module.js"></script>
+
+    <!-- global resources -->
+    <script src="./scripts/app/testng.template.service.js"></script>
+    <script src="./scripts/app/testng.menu.js"></script>
+
+    <!-- weather resources -->
+    <script src="./scripts/app/weather/testng.weather.module.js"></script>
+    <script src="./scripts/app/weather/testng.weather.service.js"></script>
+    <script src="./scripts/app/weather/testng.weather.controller.js"></script>
+    <script src="./scripts/app/weather/testng.weather.directives.js"></script>
+
+    <!-- readme resources -->
+    <script src="./scripts/app/readme/testng.readme.controller.js"></script>
+    <script src="./scripts/app/readme/testng.readme.directive.js"></script>
+
+    <!-- vendor styles -->
+    <link rel="stylesheet" type="text/css" href="./content/css/vendor/bootstrap/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./content/css/vendor/angular-ui/ui-bootstrap-custom-2.1.3-csp.css">
+    <link href="./content/css/vendor/angular-growl/angular-growl.min.css" rel="stylesheet">
+
+    <!-- app styles -->
+    <link rel="stylesheet" type="text/css" href="./content/css/app/app.css">
+</head>
+<body>
+    <div class="main-container">
+        <testng-menu></testng-menu>
+        <div ng-view ng-cloak></div>
+        <div growl></div>
+    </div>
+
+    <script type="text/ng-template" id="main.html">
+        <div class="animate-show-only">
+            <div ng-if="ctrl.status.denied">
+                <h3>Your browser doesn't support geolocation or probably you denied it.</h3>
+                <h5>Please fill the form below to get the weather status:</h5>
+
+                <form name="formSearch" novalidate>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Search for a location</div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <span for="zip">Zip code</span>
+                                        <input type="text" class="form-control" name="zip" ng-model="ctrl.search.zip" required />
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <span for="country">Country</span>
+                                        <input type="text" class="form-control" name="country" ng-model="ctrl.search.country" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="panel-footer">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <button type="submit" class="btn btn-primary" ng-disabled="formSearch.$invalid || ctrl.status.searching" ng-click="ctrl.search()">
+                                            Search <i class="glyphicon glyphicon-refresh spin" ng-show="ctrl.status.searching"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="loader-container"
+                 ng-if="ctrl.status.searching && !ctrl.status.denied">
+                <div class="loader"></div>
+            </div>
+
+            <div class="panel panel-primary"
+                 ng-if="ctrl.model">
+                <div class="panel-heading">
+                    Weather conditions
+                    <div class="pull-right dropdown">
+                        <div class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true">
+                            <span class="glyphicon glyphicon-cog config"></span>
+                        </div>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-class="{'active': ctrl.temperatureUnit === 'K'}"><a href="javascript:void(0);" ng-click="ctrl.temperatureUnit = 'K';">K</a></li>
+                            <li ng-class="{'active': ctrl.temperatureUnit === 'C'}"><a href="javascript:void(0);" ng-click="ctrl.temperatureUnit = 'C';">°C</a></li>
+                            <li ng-class="{'active': ctrl.temperatureUnit === 'F'}"><a href="javascript:void(0);" ng-click="ctrl.temperatureUnit = 'F';">°F</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel-body">
+
+                    <div ng-if="!ctrl.status.searching">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="cards">
+                                    <card title="{{ctrl.model.weather[0].description}}">
+                                        <div class="header">
+                                            <img ng-src="{{ctrl.getIconUrl(ctrl.model.weather[0].icon)}}" style="height: 45px;" />
+                                        </div>
+                                        <div class="text">
+                                            {{ctrl.model.weather[0].main}}
+                                        </div>
+                                    </card>
+                                    <card title="Current temperature">
+                                        <div class="header">
+                                            <img src="/content/images/app/weather/thermometer.png" style="height: 45px;" />
+                                        </div>
+                                        <div class="text">
+                                            <span class="temperature">{{ ctrl.getTemperatureInUnit(ctrl.model.main.temp) | number : 2 }}{{ctrl.getTemperatureUnitLabel()}}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Max temperature">
+                                        <div class="header">
+                                            <span class="glyphicon glyphicon-arrow-up text-red" aria-hidden="true"></span>{{ctrl.getTemperatureUnitLabel()}}
+                                        </div>
+                                        <div class="text">
+                                            <span class="temperature">Max: {{ ctrl.getTemperatureInUnit(ctrl.model.main.temp_max) | number : 2 }}{{ctrl.getTemperatureUnitLabel()}}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Min temperature">
+                                        <div class="header">
+                                            <span class="glyphicon glyphicon-arrow-down text-blue" aria-hidden="true"></span>{{ctrl.getTemperatureUnitLabel()}}
+                                        </div>
+                                        <div class="text">
+                                            <span class="temperature">Min: {{ ctrl.getTemperatureInUnit(ctrl.model.main.temp_min) | number : 2 }}{{ctrl.getTemperatureUnitLabel()}}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Sunrise time">
+                                        <div class="header">
+                                            <img src="/content/images/app/weather/sunrise.png" style="width: 40px;" />
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ctrl.model.sys.sunrise * 1000 | date:'hh:mmaZ'}}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Sunset time">
+                                        <div class="header">
+                                            <img src="/content/images/app/weather/sunset.png" style="width: 40px;" />
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ctrl.model.sys.sunset * 1000 | date:'hh:mmaZ'}}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Humidity">
+                                        <div class="header">
+                                            <img src="/content/images/app/weather/humidity.png" style="width: 40px;" />
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ctrl.model.main.humidity }}%</span>
+                                        </div>
+                                    </card>
+                                    <card>
+                                        <div class="header" title="Wind direction ({{ctrl.model.wind.deg}}°)">
+                                            <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" style="transform: rotate({{ctrl.model.wind.deg}}deg);"></span>
+                                        </div>
+                                        <div class="text" title="Wind speed (m/s) / Wind gust (m/s)">
+                                            <span>{{ctrl.model.wind.speed }} / {{ctrl.model.wind.gust }}</span>
+                                        </div>
+                                    </card>
+                                    <card title="Rain volume for the last 3 hours">
+                                        <div class="header">
+                                            <span class="glyphicon glyphicon-tint" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ ctrl.model.rain["3h"] }} mm/3h</span>
+                                        </div>
+                                    </card>
+                                    <card title="Cloudiness">
+                                        <div class="header">
+                                            <span class="glyphicon glyphicon-cloud" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ ctrl.model.clouds.all }}%</span>
+                                        </div>
+                                    </card>
+                                    <card title="Atmospheric pressure (on the sea level, if there is no sea_level or grnd_level data), hPa">
+                                        <div class="header">
+                                            <img src="/content/images/app/weather/atmospheric-pressure.png" style="height: 45px;" />
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ ctrl.model.main.pressure }} hPa</span>
+                                        </div>
+                                    </card>
+                                    <card title="Time of data calculation">
+                                        <div class="header">
+                                            <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                                        </div>
+                                        <div class="text">
+                                            <span>{{ ctrl.model.dt * 1000 | date:'hh:mmaZ' }}</span>
+                                        </div>
+                                    </card>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <div class="form-group">
+                                    <label>Map:</label>
+                                    <div class="map-container">
+                                        <map latitude="ctrl.model.coord.lat"
+                                             longitude="ctrl.model.coord.lon"
+                                             google-api-key="ctrl.getGoogleApiKey()"
+                                             ng-if="ctrl.model.coord"></map>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-7">
+                                <row-info label="Country" value="ctrl.model.sys.country"></row-info>
+                                <row-info label="City" value="ctrl.model.name"></row-info>
+                                <row-info label="Latitude" value="ctrl.model.coord.lat"></row-info>
+                                <row-info label="Longitude" value="ctrl.model.coord.lon"></row-info>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="readme.html">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Read me</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <testng-readme />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        (function () {
+            angular.module("testng")
+                .constant("ROUTES", {
+                    get: "http://api.openweathermap.org/data/2.5/weather",
+                    iconUrl: "http://openweathermap.org/img/w/"
+                });
+
+            angular.module("testng")
+                .constant("CONFIG", {
+                    testingPage: "test.html",
+                    readmeFile: "README.txt",
+                    menuTemplate: "content/templates/menu.html?v=2",
+                    rowInfoTemplate: "content/templates/row-info.html",
+                    googleApiKey: "AIzaSyBQBoTmUmkzrzAKquNkWQgdAQ8SNvRVCow"
+                });
+        })();
+
+    </script>
+
+</body>
+</html>
